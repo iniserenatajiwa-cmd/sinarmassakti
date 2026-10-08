@@ -5,8 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="page-title">Detail Produk - SinarMasSakti</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .no-save {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            pointer-events: none;
+        }
+        .image-container {
+            position: relative;
+        }
+    </style>
 </head>
-<body class="bg-gray-50 text-gray-900 font-sans flex flex-col min-h-screen">
+<body class="bg-gray-50 text-gray-900 font-sans flex flex-col min-h-screen" oncontextmenu="return false;">
 
     <header class="bg-gray-900 text-white py-4 px-6">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
@@ -17,8 +29,8 @@
 
     <main class="max-w-6xl mx-auto px-4 py-10 flex-1 w-full">
         <div class="bg-white p-6 sm:p-10 rounded-2xl shadow-sm border border-gray-200 grid grid-cols-1 md:grid-cols-2 gap-10">
-            <div>
-                <img id="prod-img" src="" alt="Produk" class="w-full aspect-square object-cover rounded-xl border">
+            <div class="image-container">
+                <img id="prod-img" src="" alt="Produk" class="w-full aspect-square object-cover rounded-xl border no-save" oncontextmenu="return false;">
             </div>
             <div class="space-y-6">
                 <div>
