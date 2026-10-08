@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">Detail Produk - SinarMasSakti</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-900 font-sans flex flex-col min-h-screen">
+
+    <header class="bg-gray-900 text-white py-4 px-6">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <h1 class="text-lg font-black uppercase">SINARMAS<span class="text-red-600">SAKTI</span></h1>
+            <a href="index.html" class="text-xs text-gray-300 hover:text-white font-bold">← Kembali ke Katalog</a>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-10 flex-1 w-full">
+        <div class="bg-white p-6 sm:p-10 rounded-2xl shadow-sm border border-gray-200 grid grid-cols-1 md:grid-cols-2 gap-10">
+            <div>
+                <img id="prod-img" src="" alt="Produk" class="w-full aspect-square object-cover rounded-xl border">
+            </div>
+            <div class="space-y-6">
+                <div>
+                    <span id="prod-brand" class="bg-red-100 text-red-600 text-xs font-bold px-3 py-1 rounded uppercase">Brand</span>
+                    <h2 id="prod-name" class="text-2xl sm:text-3xl font-black text-gray-900 mt-2">Nama Produk</h2>
+                    <p id="prod-sku" class="text-xs text-gray-400 font-mono mt-1">SKU: -</p>
+                </div>
+                
+                <div class="bg-gray-50 p-4 rounded-xl border">
+                    <span class="text-sm font-bold text-gray-700">Status: Tersedia (Tanya Harga / Konsultasi)</span>
+                </div>
+
+                <p id="prod-desc" class="text-sm text-gray-600 leading-relaxed">Memuat deskripsi...</p>
+
+                <div>
+                    <a id="wa-btn" href="#" target="_blank" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3.5 rounded-xl font-bold text-sm transition flex items-center justify-center space-x-2 shadow-md">
+                        <span>💬 Tanya Harga & Pesan via WhatsApp</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-gray-900 text-gray-400 py-6 text-center text-xs border-t border-gray-800">
+        <p>© 2026 SinarMasSakti. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        async function ambilDetailProduk() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const namaFile = urlParams.get('id');
+
+            if (!namaFile) { tampilkanError(); return; }
+
+            try {
+                let response = await fetch(`./content/produk/${namaFile}.md`);
+                let text = await response.text();
+                let data = parseFrontMatter(text);
+
+                if (data) {
+                    document.getElementById('page-title').innerText = data.title + " - SinarMasSakti";
+                    document.getElementById('prod-img').src = data.image || 'logo-sinarmassakti.jpeg';
+                    document.getElementById('prod-brand').innerText = data.kategori || 'Industrial';
+                    document.getElementById('prod-name').innerText = data.title;
+                    document.getElementById('prod-sku').innerText = "SKU: " + (data.sku || '-');
+                    document.getElementById('prod-desc').innerText = data.deskripsi || 'Tidak ada deskripsi.';
+                    
+                    let pesanWa = `Halo SinarMasSakti, saya tertarik dengan produk ${data.title} (SKU: ${data.sku}). Mohon info detail spesifikasi dan harganya.`;
+                    document.getElementById('wa-btn').href = `https://wa.me/6285700976558?text=${encodeURIComponent(pesanWa)}`;
+                } else { tampilkanError(); }
+            } catch (error) { tampilkanError(); }
+        }
+
+        function parseFrontMatter(markdownText) {
+            let parts = markdownText.split('---');
+            if (parts.length < 3) return null;
+            let lines = parts[1].trim().split('\n');
+            let obj = {};
+            lines.forEach(line => {
+                let idx = line.indexOf(':');
+                if (idx > -1) {
+                    let k = line.substring(0, idx).trim();
+                    let v = line.substring(idx + 1).trim().replace(/^["'](.*)["']$/, '$1');
+                    obj[k] = v;
+                }
+            });
+            obj.deskripsi = parts[2].trim();
+            return obj;
+        }
+
+        function tampilkanError() {
+            document.querySelector('main').innerHTML = `<div class="text-center py-20 bg-white rounded-2xl border p-8"><h2 class="text-lg font-bold text-red-600">Produk tidak ditemukan.</h2><a href="index.html" class="text-blue-600 underline text-xs mt-4 inline-block font-bold">← Kembali ke Beranda</a></div>`;
+        }
+
+        ambilDetailProduk();
+    </script>
+</body>
+</html>

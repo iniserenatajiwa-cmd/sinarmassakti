@@ -1,0 +1,18 @@
+backend:
+  name: git-gateway
+  branch: main
+
+media_folder: "images/uploads"
+public_folder: "images/uploads"
+
+collections:
+  - name: "produk"
+    label: "Katalog Produk"
+    folder: "content/produk"
+    create: true
+    fields:
+      - {label: "Nama Produk", name: "title", widget: "string"}
+      - {label: "SKU / Merek", name: "sku", widget: "string"}
+      - {label: "Kategori", name: "kategori", widget: "select", options: ["tools", "chemical", "adhesive", "safety", "other"]}
+      - {label: "Foto Produk", name: "image", widget: "image"}
+      - {label: "Deskripsi Singkat", name: "deskripsi", widget: "text"}

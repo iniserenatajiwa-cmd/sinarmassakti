@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SinarMasSakti - Tool, Machinery & Industrial Equipment</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+</head>
+<body class="bg-gray-50 text-gray-900 font-sans flex flex-col min-h-screen">
+
+    <!-- TOPBAR INFO -->
+    <div class="bg-gray-900 text-gray-300 text-xs py-2 px-4 sm:px-8 flex justify-between items-center">
+        <div class="flex items-center space-x-4">
+            <span>📞 +62 857 0097 6558</span>
+            <span class="hidden sm:inline">✉️ sinarmassakti71@gmail.com</span>
+        </div>
+        <div>
+            <span class="text-red-400 font-semibold">Jam Kerja: Sen - Sab (09:00 - 17:00)</span>
+        </div>
+    </div>
+
+    <!-- MAIN HEADER -->
+    <header class="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-8 py-4 flex items-center justify-between gap-4">
+            <div class="flex items-center space-x-3">
+                <img src="logo-sinarmassakti.jpeg" alt="Logo SinarMasSakti" class="h-9 w-9 object-contain rounded-lg shadow">
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-black tracking-wider text-gray-900 uppercase">SinarMas<span class="text-red-600">Sakti</span></h1>
+                    <p class="text-[10px] tracking-widest text-gray-500 font-semibold uppercase">Tool, Machinery & Industrial Equipment</p>
+                </div>
+            </div>
+            <div class="hidden md:flex flex-1 max-w-md mx-6">
+                <div class="relative w-full">
+                    <input type="text" id="input-pencarian" onkeyup="cariProduk()" placeholder="Cari produk industrial, SKU, atau merek..." class="w-full pl-4 pr-10 py-2 bg-gray-100 border border-gray-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-red-500">
+                    <span class="absolute right-3 top-2.5 text-gray-400 text-xs">🔍</span>
+                </div>
+            </div>
+            <a href="https://wa.me/6285700976558?text=Halo%20SinarMasSakti,%20saya%20ingin%20konsultasi%20kebutuhan%20industrial." target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center space-x-2 shadow-sm">
+                <span>💬 WhatsApp CS</span>
+            </a>
+        </div>
+        <!-- NAVIGATION SUB-BAR -->
+        <div class="bg-gray-900 text-white px-4 sm:px-8 text-xs font-medium">
+            <div class="max-w-7xl mx-auto flex items-center space-x-6 overflow-x-auto py-2.5 whitespace-nowrap">
+                <span class="text-red-400 font-bold uppercase tracking-wider">Kategori Utama:</span>
+                <a onclick="filterKategori('semua')" class="hover:text-red-400 transition cursor-pointer">Semua Produk</a>
+                <a onclick="filterKategori('tools')" class="hover:text-red-400 transition cursor-pointer">Hardware & Tools</a>
+                <a onclick="filterKategori('chemical')" class="hover:text-red-400 transition cursor-pointer">Chemical</a>
+                <a onclick="filterKategori('adhesive')" class="hover:text-red-400 transition cursor-pointer">Adhesive & Sealant</a>
+                <a onclick="filterKategori('safety')" class="hover:text-red-400 transition cursor-pointer">Safety Equipment</a>
+                <a onclick="filterKategori('other')" class="hover:text-red-400 transition cursor-pointer">Other</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- HERO BANNER -->
+    <section class="relative bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 text-white py-20 px-4 sm:px-8">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+            <div class="space-y-6">
+                <span class="bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest">
+                    Industrial & Engineering Supplier
+                </span>
+                <h2 class="text-4xl sm:text-5xl font-black tracking-tight leading-tight">
+                    Industrial & Engineering Solutions for Your Business
+                </h2>
+                <p class="text-gray-300 text-sm sm:text-base leading-relaxed">
+                    Temukan tools, chemical, adhesive, maintenance supplies, spare parts, dan kebutuhan industrial lainnya berkualitas tinggi untuk pabrik dan perusahaan Anda.
+                </p>
+                <div class="flex space-x-4">
+                    <a href="#katalog" class="bg-red-600 hover:bg-red-700 text-white px-6 py-3.5 rounded-xl font-bold transition shadow-lg text-sm flex items-center space-x-2">
+                        <span>Lihat Katalog Produk</span>
+                        <span>➔</span>
+                    </a>
+                </div>
+            </div>
+            <div class="hidden md:block">
+                <div class="rounded-2xl overflow-hidden shadow-2xl border-4 border-gray-700 bg-gray-800 p-2">
+                    <img src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80" alt="Industrial Workshop" class="w-full h-80 object-cover rounded-xl">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- KATALOG PRODUK SECTION -->
+    <main id="katalog" class="max-w-7xl mx-auto px-4 sm:px-8 py-16 flex-1 space-y-8">
+        <div class="flex justify-between items-end border-b pb-4">
+            <div>
+                <span class="text-red-600 font-bold text-xs uppercase tracking-wider">Katalog Unggulan</span>
+                <h3 class="text-2xl font-black uppercase text-gray-900 tracking-tight">Featured Industrial Products</h3>
+            </div>
+            <span class="text-xs text-gray-500 font-medium">Menampilkan produk siap kirim</span>
+        </div>
+
+        <!-- GRID PRODUK -->
+        <div id="daftar-produk-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+            <div class="col-span-full text-center py-12 bg-white rounded-2xl border border-dashed border-gray-300 p-8 space-y-3">
+                <p class="text-sm font-bold text-gray-700">Belum ada produk atau sedang disinkronkan dengan CMS.</p>
+                <p class="text-xs text-gray-500">Silakan login ke <a href="/admin" class="text-red-600 underline font-bold">Panel Admin (/admin)</a> untuk mulai menambahkan produk baru!</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-gray-900 text-gray-400 border-t border-gray-800 mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-8 py-12 text-center text-xs text-gray-500">
+            © 2026 SinarMasSakti. All Rights Reserved. Industrial & Engineering Solutions.
+        </div>
+    </footer>
+
+    <script>
+        function filterKategori(kategoriPilihan) {
+            let daftarProduk = document.getElementsByClassName('kartu-produk');
+            for (let i = 0; i < daftarProduk.length; i++) {
+                let kat = daftarProduk[i].getAttribute('data-kategori');
+                if (kategoriPilihan === 'semua' || kat === kategoriPilihan) {
+                    daftarProduk[i].style.display = ""; 
+                } else {
+                    daftarProduk[i].style.display = "none"; 
+                }
+            }
+        }
+        function cariProduk() {
+            let input = document.getElementById('input-pencarian').value.toLowerCase();
+            let daftarProduk = document.getElementsByClassName('kartu-produk');
+            for (let i = 0; i < daftarProduk.length; i++) {
+                let teks = daftarProduk[i].innerText.toLowerCase();
+                daftarProduk[i].style.display = teks.includes(input) ? "" : "none";
+            }
+        }
+    </script>
+</body>
+</html>
