@@ -6,6 +6,20 @@
     <title>SinarMasSakti - Tool, Machinery & Industrial Equipment</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    <style>
+        /* Mencegah gambar di-drag atau disimpan sembarangan */
+        .no-save {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            pointer-events: none; /* Mencegah interaksi langsung pada gambar */
+        }
+        .image-wrapper {
+            position: relative;
+            overflow: hidden;
+        }
+    </style>
 </head>
 <body class="bg-gray-50 text-gray-900 font-sans flex flex-col min-h-screen">
 
@@ -24,7 +38,7 @@
     <header class="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-8 py-4 flex items-center justify-between gap-4">
             <div class="flex items-center space-x-3">
-                <img src="logo-sinarmassakti.jpeg" alt="Logo SinarMasSakti" class="h-9 w-9 object-contain rounded-lg shadow">
+                <img src="logo-sinarmassakti.jpeg" alt="Logo SinarMasSakti" class="h-9 w-9 object-contain rounded-lg shadow no-save" oncontextmenu="return false;">
                 <div>
                     <h1 class="text-xl sm:text-2xl font-black tracking-wider text-gray-900 uppercase">SinarMas<span class="text-red-600">Sakti</span></h1>
                     <p class="text-[10px] tracking-widest text-gray-500 font-semibold uppercase">Tool, Machinery & Industrial Equipment</p>
@@ -74,16 +88,14 @@
                     </a>
                 </div>
             </div>
-            <div class="hidden md:block">
-                <div class="rounded-2xl overflow-hidden shadow-2xl border-4 border-gray-700 bg-gray-800 p-2">
-                    <img src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80" alt="Industrial Workshop" class="w-full h-80 object-cover rounded-xl">
-                </div>
+            <div class="hidden md:block image-wrapper rounded-2xl overflow-hidden shadow-2xl border-4 border-gray-700 bg-gray-800 p-2">
+                <img src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80" alt="Industrial Workshop" class="w-full h-80 object-cover rounded-xl no-save" oncontextmenu="return false;">
             </div>
         </div>
     </section>
 
     <!-- KATALOG PRODUK SECTION -->
-    <main id="katalog" class="max-w-7xl mx-auto px-4 sm:px-8 py-16 flex-1 space-y-8">
+    <main id="katalog" class="max-w-7xl mx-auto px-4 sm:px-8 py-16 flex-1 space-y-8" oncontextmenu="return false;">
         <div class="flex justify-between items-end border-b pb-4">
             <div>
                 <span class="text-red-600 font-bold text-xs uppercase tracking-wider">Katalog Unggulan</span>
@@ -128,6 +140,13 @@
                 daftarProduk[i].style.display = teks.includes(input) ? "" : "none";
             }
         }
+        
+        // Blokir kombinasi tombol untuk inspect element / save (Opsional tambahan keamanan)
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'F12' || (event.ctrlKey && event.shiftKey && event.key === 'I') || (event.ctrlKey && event.key === 's')) {
+                event.preventDefault();
+            }
+        });
     </script>
 </body>
 </html>
