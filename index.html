@@ -6,6 +6,8 @@
     <title>SinarMasSakti - Tool, Machinery & Industrial Equipment</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    <!-- Tambahan Decap CMS Netlify Script -->
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     <style>
         .no-save {
             -webkit-user-select: none;
@@ -13,10 +15,6 @@
             -ms-user-select: none;
             user-select: none;
             pointer-events: none;
-        }
-        .image-wrapper {
-            position: relative;
-            overflow: hidden;
         }
     </style>
 </head>
@@ -87,14 +85,14 @@
                     </a>
                 </div>
             </div>
-            <div class="hidden md:block image-wrapper rounded-2xl overflow-hidden shadow-2xl border-4 border-gray-700 bg-gray-800 p-2">
+            <div class="hidden md:block rounded-2xl overflow-hidden shadow-2xl border-4 border-gray-700 bg-gray-800 p-2">
                 <img src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80" alt="Industrial Workshop" class="w-full h-80 object-cover rounded-xl no-save" oncontextmenu="return false;">
             </div>
         </div>
     </section>
 
     <!-- KATALOG PRODUK SECTION -->
-    <main id="katalog" class="max-w-7xl mx-auto px-4 sm:px-8 py-16 flex-1 space-y-8" oncontextmenu="return false;">
+    <main id="katalog" class="max-w-7xl mx-auto px-4 sm:px-8 py-16 flex-1 space-y-8">
         <div class="flex justify-between items-end border-b pb-4">
             <div>
                 <span class="text-red-600 font-bold text-xs uppercase tracking-wider">Katalog Unggulan</span>
@@ -103,10 +101,10 @@
             <span class="text-xs text-gray-500 font-medium">Menampilkan produk siap kirim</span>
         </div>
 
-        <!-- GRID PRODUK (Otomatis dimuat dari CMS) -->
+        <!-- GRID PRODUK -->
         <div id="daftar-produk-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
             <div class="col-span-full text-center py-12 bg-white rounded-2xl border border-dashed border-gray-300 p-8 space-y-3">
-                <p class="text-sm font-bold text-gray-700">Memuat produk dari database...</p>
+                <p class="text-sm font-bold text-gray-700">Memuat produk...</p>
             </div>
         </div>
     </main>
@@ -119,34 +117,30 @@
     </footer>
 
     <script>
-        // Fungsi untuk mengambil dan merender produk dari Decap CMS
-        async function muatDaftarProduk() {
+        // Membaca langsung daftar file dari folder content/produk menggunakan manifest Netlify / Direktori GitHub
+        async function muatProdukOtomatis() {
             const container = document.getElementById('daftar-produk-container');
-            
-            // Daftar file markdown produk (Contoh list otomatis atau file mapping)
-            // Karena menggunakan GitHub, kita bisa fetch daftar file dari folder content/produk/
             try {
-                // Mengambil list file via GitHub API untuk repo ini
-                let repoApi = "https://api.github.com/repos/sinarmassakti/sinarmassakti/contents/content/produk";
-                let res = await fetch(repoApi);
-                let files = await res.json();
+                // Mengambil daftar file melalui endpoint GitHub API publik branch main
+                let response = await fetch('https://api.github.com/repos/sinarmassakti/sinarmassakti/contents/content/produk');
+                let files = await response.json();
                 
                 if (!Array.isArray(files) || files.length === 0) {
-                    container.innerHTML = `<div class="col-span-full text-center py-12 bg-white rounded-2xl border border-dashed border-gray-300 p-8 space-y-3"><p class="text-sm font-bold text-gray-700">Belum ada produk yang ditambahkan.</p><p class="text-xs text-gray-500">Silakan tambah produk lewat <a href="/admin" class="text-red-600 underline font-bold">Panel Admin (/admin)</a>.</p></div>`;
+                    container.innerHTML = `<div class="col-span-full text-center py-12 bg-white rounded-2xl border border-dashed border-gray-300 p-8"><p class="text-sm font-bold text-gray-700">Belum ada produk.</p></div>`;
                     return;
                 }
 
-                container.innerHTML = ""; // Kosongkan loading
+                container.innerHTML = "";
 
                 for (let file of files) {
                     if (file.name.endsWith('.md')) {
-                        let fileRes = await fetch(file.download_url);
-                        let markdownText = await fileRes.text();
-                        let data = parseFrontMatter(markdownText);
+                        let res = await fetch(file.download_url);
+                        let text = await res.text();
+                        let data = parseFrontMatter(text);
                         let slug = file.name.replace('.md', '');
 
                         if (data && data.title) {
-                            let cardHtml = `
+                            container.innerHTML += `
                                 <div class="kartu-produk bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition flex flex-col" data-kategori="${data.kategori || 'other'}">
                                     <div class="relative overflow-hidden bg-gray-100 aspect-square">
                                         <img src="${data.image || 'logo-sinarmassakti.jpeg'}" alt="${data.title}" class="w-full h-full object-cover no-save" oncontextmenu="return false;">
@@ -164,13 +158,12 @@
                                     </div>
                                 </div>
                             `;
-                            container.innerHTML += cardHtml;
                         }
                     }
                 }
-            } catch (err) {
-                console.error("Gagal memuat produk:", err);
-                container.innerHTML = `<div class="col-span-full text-center py-12 bg-white rounded-2xl border border-dashed border-gray-300 p-8 space-y-3"><p class="text-sm font-bold text-gray-700">Belum ada produk yang dipublish.</p><p class="text-xs text-gray-500">Silakan buat produk pertama lewat <a href="/admin" class="text-red-600 underline font-bold">Panel Admin (/admin)</a>.</p></div>`;
+            } catch (e) {
+                // Jika GitHub API terkena limit, kita gunakan list manual atau tampilkan info
+                container.innerHTML = `<div class="col-span-full text-center py-12 bg-white rounded-2xl border border-dashed border-gray-300 p-8"><p class="text-sm font-bold text-gray-700">Silakan refresh beberapa saat lagi atau cek koneksi deploy Netlify Anda.</p></div>`;
             }
         }
 
@@ -191,29 +184,23 @@
             return obj;
         }
 
-        function filterKategori(kategoriPilihan) {
-            let daftarProduk = document.getElementsByClassName('kartu-produk');
-            for (let i = 0; i < daftarProduk.length; i++) {
-                let kat = daftarProduk[i].getAttribute('data-kategori');
-                if (kategoriPilihan === 'semua' || kat === kategoriPilihan) {
-                    daftarProduk[i].style.display = ""; 
-                } else {
-                    daftarProduk[i].style.display = "none"; 
-                }
+        function filterKategori(kat) {
+            let items = document.getElementsByClassName('kartu-produk');
+            for (let i = 0; i < items.length; i++) {
+                let k = items[i].getAttribute('data-kategori');
+                items[i].style.display = (kat === 'semua' || k === kat) ? "" : "none";
             }
         }
 
         function cariProduk() {
-            let input = document.getElementById('input-pencarian').value.toLowerCase();
-            let daftarProduk = document.getElementsByClassName('kartu-produk');
-            for (let i = 0; i < daftarProduk.length; i++) {
-                let teks = daftarProduk[i].innerText.toLowerCase();
-                daftarProduk[i].style.display = teks.includes(input) ? "" : "none";
+            let key = document.getElementById('input-pencarian').value.toLowerCase();
+            let items = document.getElementsByClassName('kartu-produk');
+            for (let i = 0; i < items.length; i++) {
+                items[i].style.display = items[i].innerText.toLowerCase().includes(key) ? "" : "none";
             }
         }
 
-        // Jalankan fungsi saat halaman selesai dimuat
-        muatDaftarProduk();
+        muatProdukOtomatis();
     </script>
 </body>
 </html>
