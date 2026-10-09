@@ -7,13 +7,12 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     <style>
-        /* Mencegah gambar di-drag atau disimpan sembarangan */
         .no-save {
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
             user-select: none;
-            pointer-events: none; /* Mencegah interaksi langsung pada gambar */
+            pointer-events: none;
         }
         .image-wrapper {
             position: relative;
@@ -104,11 +103,10 @@
             <span class="text-xs text-gray-500 font-medium">Menampilkan produk siap kirim</span>
         </div>
 
-        <!-- GRID PRODUK -->
+        <!-- GRID PRODUK (Otomatis dimuat dari CMS) -->
         <div id="daftar-produk-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
             <div class="col-span-full text-center py-12 bg-white rounded-2xl border border-dashed border-gray-300 p-8 space-y-3">
-                <p class="text-sm font-bold text-gray-700">Belum ada produk atau sedang disinkronkan dengan CMS.</p>
-                <p class="text-xs text-gray-500">Silakan login ke <a href="/admin" class="text-red-600 underline font-bold">Panel Admin (/admin)</a> untuk mulai menambahkan produk baru!</p>
+                <p class="text-sm font-bold text-gray-700">Memuat produk dari database...</p>
             </div>
         </div>
     </main>
@@ -121,6 +119,78 @@
     </footer>
 
     <script>
+        // Fungsi untuk mengambil dan merender produk dari Decap CMS
+        async function muatDaftarProduk() {
+            const container = document.getElementById('daftar-produk-container');
+            
+            // Daftar file markdown produk (Contoh list otomatis atau file mapping)
+            // Karena menggunakan GitHub, kita bisa fetch daftar file dari folder content/produk/
+            try {
+                // Mengambil list file via GitHub API untuk repo ini
+                let repoApi = "https://api.github.com/repos/sinarmassakti/sinarmassakti/contents/content/produk";
+                let res = await fetch(repoApi);
+                let files = await res.json();
+                
+                if (!Array.isArray(files) || files.length === 0) {
+                    container.innerHTML = `<div class="col-span-full text-center py-12 bg-white rounded-2xl border border-dashed border-gray-300 p-8 space-y-3"><p class="text-sm font-bold text-gray-700">Belum ada produk yang ditambahkan.</p><p class="text-xs text-gray-500">Silakan tambah produk lewat <a href="/admin" class="text-red-600 underline font-bold">Panel Admin (/admin)</a>.</p></div>`;
+                    return;
+                }
+
+                container.innerHTML = ""; // Kosongkan loading
+
+                for (let file of files) {
+                    if (file.name.endsWith('.md')) {
+                        let fileRes = await fetch(file.download_url);
+                        let markdownText = await fileRes.text();
+                        let data = parseFrontMatter(markdownText);
+                        let slug = file.name.replace('.md', '');
+
+                        if (data && data.title) {
+                            let cardHtml = `
+                                <div class="kartu-produk bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition flex flex-col" data-kategori="${data.kategori || 'other'}">
+                                    <div class="relative overflow-hidden bg-gray-100 aspect-square">
+                                        <img src="${data.image || 'logo-sinarmassakti.jpeg'}" alt="${data.title}" class="w-full h-full object-cover no-save" oncontextmenu="return false;">
+                                        <span class="absolute top-3 left-3 bg-gray-900/80 text-white text-[10px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wider backdrop-blur-sm">${data.kategori || 'Industrial'}</span>
+                                    </div>
+                                    <div class="p-6 flex-1 flex flex-col justify-between space-y-4">
+                                        <div class="space-y-1">
+                                            <p class="text-[11px] text-gray-400 font-mono">SKU: ${data.sku || '-'}</p>
+                                            <h4 class="text-lg font-black text-gray-900 line-clamp-1">${data.title}</h4>
+                                            <p class="text-xs text-gray-600 line-clamp-2">${data.deskripsi || ''}</p>
+                                        </div>
+                                        <a href="detail.html?id=${slug}" class="w-full bg-gray-900 hover:bg-red-600 text-white py-2.5 rounded-xl font-bold text-xs transition text-center shadow-sm">
+                                            Lihat Detail & Spesifikasi
+                                        </a>
+                                    </div>
+                                </div>
+                            `;
+                            container.innerHTML += cardHtml;
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error("Gagal memuat produk:", err);
+                container.innerHTML = `<div class="col-span-full text-center py-12 bg-white rounded-2xl border border-dashed border-gray-300 p-8 space-y-3"><p class="text-sm font-bold text-gray-700">Belum ada produk yang dipublish.</p><p class="text-xs text-gray-500">Silakan buat produk pertama lewat <a href="/admin" class="text-red-600 underline font-bold">Panel Admin (/admin)</a>.</p></div>`;
+            }
+        }
+
+        function parseFrontMatter(markdownText) {
+            let parts = markdownText.split('---');
+            if (parts.length < 3) return null;
+            let lines = parts[1].trim().split('\n');
+            let obj = {};
+            lines.forEach(line => {
+                let idx = line.indexOf(':');
+                if (idx > -1) {
+                    let k = line.substring(0, idx).trim();
+                    let v = line.substring(idx + 1).trim().replace(/^["'](.*)["']$/, '$1');
+                    obj[k] = v;
+                }
+            });
+            obj.deskripsi = parts[2].trim();
+            return obj;
+        }
+
         function filterKategori(kategoriPilihan) {
             let daftarProduk = document.getElementsByClassName('kartu-produk');
             for (let i = 0; i < daftarProduk.length; i++) {
@@ -132,6 +202,7 @@
                 }
             }
         }
+
         function cariProduk() {
             let input = document.getElementById('input-pencarian').value.toLowerCase();
             let daftarProduk = document.getElementsByClassName('kartu-produk');
@@ -140,13 +211,9 @@
                 daftarProduk[i].style.display = teks.includes(input) ? "" : "none";
             }
         }
-        
-        // Blokir kombinasi tombol untuk inspect element / save (Opsional tambahan keamanan)
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'F12' || (event.ctrlKey && event.shiftKey && event.key === 'I') || (event.ctrlKey && event.key === 's')) {
-                event.preventDefault();
-            }
-        });
+
+        // Jalankan fungsi saat halaman selesai dimuat
+        muatDaftarProduk();
     </script>
 </body>
 </html>
