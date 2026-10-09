@@ -15,4 +15,4 @@ collections:
       - {label: "SKU / Merek", name: "sku", widget: "string"}
       - {label: "Kategori", name: "kategori", widget: "select", options: ["tools", "chemical", "adhesive", "safety", "other"]}
       - {label: "Foto Produk", name: "image", widget: "image"}
-      - {label: "Deskripsi Singkat", name: "deskripsi", widget: "text"}
+      - {label: "Deskripsi Lengkap", name: "deskripsi", widget: "markdown"}
