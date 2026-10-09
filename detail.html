@@ -13,9 +13,6 @@
             user-select: none;
             pointer-events: none;
         }
-        .image-container {
-            position: relative;
-        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-900 font-sans flex flex-col min-h-screen" oncontextmenu="return false;">
@@ -29,7 +26,7 @@
 
     <main class="max-w-6xl mx-auto px-4 py-10 flex-1 w-full">
         <div class="bg-white p-6 sm:p-10 rounded-2xl shadow-sm border border-gray-200 grid grid-cols-1 md:grid-cols-2 gap-10">
-            <div class="image-container">
+            <div class="relative">
                 <img id="prod-img" src="" alt="Produk" class="w-full aspect-square object-cover rounded-xl border no-save" oncontextmenu="return false;">
             </div>
             <div class="space-y-6">
@@ -43,7 +40,11 @@
                     <span class="text-sm font-bold text-gray-700">Status: Tersedia (Tanya Harga / Konsultasi)</span>
                 </div>
 
-                <p id="prod-desc" class="text-sm text-gray-600 leading-relaxed">Memuat deskripsi...</p>
+                <!-- Bagian Deskripsi -->
+                <div class="space-y-2">
+                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Deskripsi & Spesifikasi:</h3>
+                    <p id="prod-desc" class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">Memuat deskripsi...</p>
+                </div>
 
                 <div>
                     <a id="wa-btn" href="#" target="_blank" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3.5 rounded-xl font-bold text-sm transition flex items-center justify-center space-x-2 shadow-md">
@@ -67,38 +68,49 @@
 
             try {
                 let response = await fetch(`./content/produk/${namaFile}.md`);
+                if (!response.ok) { tampilkanError(); return; }
                 let text = await response.text();
-                let data = parseFrontMatter(text);
+                
+                let parsed = parseMarkdown(text);
 
-                if (data) {
-                    document.getElementById('page-title').innerText = data.title + " - SinarMasSakti";
-                    document.getElementById('prod-img').src = data.image || 'logo-sinarmassakti.jpeg';
-                    document.getElementById('prod-brand').innerText = data.kategori || 'Industrial';
-                    document.getElementById('prod-name').innerText = data.title;
-                    document.getElementById('prod-sku').innerText = "SKU: " + (data.sku || '-');
-                    document.getElementById('prod-desc').innerText = data.deskripsi || 'Tidak ada deskripsi.';
+                if (parsed) {
+                    document.getElementById('page-title').innerText = (parsed.title || "Produk") + " - SinarMasSakti";
+                    document.getElementById('prod-img').src = parsed.image || 'logo-sinarmassakti.jpeg';
+                    document.getElementById('prod-brand').innerText = parsed.kategori || 'Industrial';
+                    document.getElementById('prod-name').innerText = parsed.title || '-';
+                    document.getElementById('prod-sku').innerText = "SKU: " + (parsed.sku || '-');
+                    document.getElementById('prod-desc').innerText = parsed.description || 'Tidak ada deskripsi.';
                     
-                    let pesanWa = `Halo SinarMasSakti, saya tertarik dengan produk ${data.title} (SKU: ${data.sku}). Mohon info detail spesifikasi dan harganya.`;
+                    let pesanWa = `Halo SinarMasSakti, saya tertarik dengan produk ${parsed.title} (SKU: ${parsed.sku || '-'}). Mohon info detail spesifikasi dan harganya.`;
                     document.getElementById('wa-btn').href = `https://wa.me/6285700976558?text=${encodeURIComponent(pesanWa)}`;
                 } else { tampilkanError(); }
-            } catch (error) { tampilkanError(); }
+            } catch (error) { 
+                tampilkanError(); 
+            }
         }
 
-        function parseFrontMatter(markdownText) {
-            let parts = markdownText.split('---');
+        // Fungsi pintar untuk membaca data YAML frontmatter dan isi deskripsi markdown Decap CMS
+        function parseMarkdown(mdText) {
+            let parts = mdText.split('---');
             if (parts.length < 3) return null;
-            let lines = parts[1].trim().split('\n');
-            let obj = {};
-            lines.forEach(line => {
+            
+            let frontMatterLines = parts[1].trim().split('\n');
+            let data = {};
+            
+            frontMatterLines.forEach(line => {
                 let idx = line.indexOf(':');
                 if (idx > -1) {
                     let k = line.substring(0, idx).trim();
                     let v = line.substring(idx + 1).trim().replace(/^["'](.*)["']$/, '$1');
-                    obj[k] = v;
+                    data[k] = v;
                 }
             });
-            obj.deskripsi = parts[2].trim();
-            return obj;
+
+            // Ambil sisa teks markdown sebagai deskripsi
+            let bodyText = parts.slice(2).join('---').trim();
+            data.description = bodyText || data.deskripsi || '';
+
+            return data;
         }
 
         function tampilkanError() {
