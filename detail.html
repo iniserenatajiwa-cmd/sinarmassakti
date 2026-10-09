@@ -43,7 +43,7 @@
                 <!-- Bagian Deskripsi Lengkap -->
                 <div class="space-y-2">
                     <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Deskripsi & Spesifikasi:</h3>
-                    <div id="prod-desc" class="text-sm text-gray-600 leading-relaxed space-y-2">Memuat deskripsi...</div>
+                    <p id="prod-desc" class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">Memuat deskripsi...</p>
                 </div>
 
                 <div>
@@ -80,14 +80,8 @@
                     document.getElementById('prod-name').innerText = parsed.title || '-';
                     document.getElementById('prod-sku').innerText = "SKU: " + (parsed.sku || '-');
                     
-                    // Menampilkan seluruh deskripsi tanpa terpotong
-                    let descContainer = document.getElementById('prod-desc');
-                    if (parsed.description) {
-                        let paragrafList = parsed.description.split('\n').filter(p => p.trim() !== '');
-                        descContainer.innerHTML = paragrafList.map(p => `<p>${p}</p>`).join('');
-                    } else {
-                        descContainer.innerText = 'Tidak ada deskripsi.';
-                    }
+                    // Menampilkan isi deskripsi secara utuh tanpa terpotong
+                    document.getElementById('prod-desc').innerText = parsed.deskripsi || parsed.description || 'Tidak ada deskripsi.';
                     
                     let pesanWa = `Halo SinarMasSakti, saya tertarik dengan produk ${parsed.title} (SKU: ${parsed.sku || '-'}). Mohon info detail spesifikasi dan harganya.`;
                     document.getElementById('wa-btn').href = `https://wa.me/6285700976558?text=${encodeURIComponent(pesanWa)}`;
@@ -97,6 +91,7 @@
             }
         }
 
+        // Fungsi pintar membaca data dari file Frontmatter CMS
         function parseMarkdown(mdText) {
             let parts = mdText.split('---');
             if (parts.length < 3) return null;
@@ -113,9 +108,11 @@
                 }
             });
 
-            // Menggabungkan seluruh bagian setelah frontmatter sebagai deskripsi utuh
+            // Ambil juga sisa body jika ada
             let bodyText = parts.slice(2).join('---').trim();
-            data.description = bodyText || data.deskripsi || '';
+            if (bodyText) {
+                data.deskripsi = bodyText;
+            }
 
             return data;
         }
