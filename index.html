@@ -6,8 +6,6 @@
     <title>SinarMasSakti - Tool, Machinery & Industrial Equipment</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-    <!-- Tambahan Decap CMS Netlify Script -->
-    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     <style>
         .no-save {
             -webkit-user-select: none;
@@ -15,6 +13,10 @@
             -ms-user-select: none;
             user-select: none;
             pointer-events: none;
+        }
+        .image-wrapper {
+            position: relative;
+            overflow: hidden;
         }
     </style>
 </head>
@@ -85,7 +87,7 @@
                     </a>
                 </div>
             </div>
-            <div class="hidden md:block rounded-2xl overflow-hidden shadow-2xl border-4 border-gray-700 bg-gray-800 p-2">
+            <div class="hidden md:block image-wrapper rounded-2xl overflow-hidden shadow-2xl border-4 border-gray-700 bg-gray-800 p-2">
                 <img src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80" alt="Industrial Workshop" class="w-full h-80 object-cover rounded-xl no-save" oncontextmenu="return false;">
             </div>
         </div>
@@ -117,12 +119,11 @@
     </footer>
 
     <script>
-        // Membaca langsung daftar file dari folder content/produk menggunakan manifest Netlify / Direktori GitHub
         async function muatProdukOtomatis() {
             const container = document.getElementById('daftar-produk-container');
             try {
-                // Mengambil daftar file melalui endpoint GitHub API publik branch main
-                let response = await fetch('https://api.github.com/repos/sinarmassakti/sinarmassakti/contents/content/produk');
+                // Alamat API GitHub yang sudah disesuaikan dengan akun Anda
+                let response = await fetch('https://api.github.com/repos/iniserenatajiwa-cmd/sinarmassakti/contents/content/produk');
                 let files = await response.json();
                 
                 if (!Array.isArray(files) || files.length === 0) {
@@ -162,8 +163,7 @@
                     }
                 }
             } catch (e) {
-                // Jika GitHub API terkena limit, kita gunakan list manual atau tampilkan info
-                container.innerHTML = `<div class="col-span-full text-center py-12 bg-white rounded-2xl border border-dashed border-gray-300 p-8"><p class="text-sm font-bold text-gray-700">Silakan refresh beberapa saat lagi atau cek koneksi deploy Netlify Anda.</p></div>`;
+                container.innerHTML = `<div class="col-span-full text-center py-12 bg-white rounded-2xl border border-dashed border-gray-300 p-8"><p class="text-sm font-bold text-gray-700">Gagal memuat produk. Silakan refresh beberapa saat lagi.</p></div>`;
             }
         }
 
