@@ -21,24 +21,4 @@ deskripsi: >-
   Kondisi : Baru\
 
   Original : Ya
-
-
-
-
-  ✨ Keunggulan:
-
-
-  ✅ Aman digunakan pada seal dan komponen berbahan karet
-
-
-  ✅ Membantu menjaga elastisitas rubber seal
-
-
-  ✅ Mengurangi gesekan dan keausan komponen
-
-
-  ✅ Tahan terhadap air dan kelembapan
-
-
-  ✅ Cocok untuk perawatan serta perakitan sistem rem hidrolik
 ---
