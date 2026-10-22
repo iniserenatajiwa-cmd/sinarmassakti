@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SinarMasSakti - Tool, Machinery & Industrial Equipment</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     <style>
         .no-save {
             -webkit-user-select: none;
@@ -94,7 +93,7 @@
     </section>
 
     <!-- KATALOG PRODUK SECTION -->
-    <main id="katalog" class="max-w-7xl mx-auto px-4 sm:px-8 py-16 flex-1 space-y-8">
+    <main id="katalog" class="max-w-7xl mx-auto px-4 sm:px-8 py-16 flex-1 space-y-8 w-full">
         <div class="flex justify-between items-end border-b pb-4">
             <div>
                 <span class="text-red-600 font-bold text-xs uppercase tracking-wider">Katalog Unggulan</span>
@@ -106,7 +105,7 @@
         <!-- GRID PRODUK -->
         <div id="daftar-produk-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
             <div class="col-span-full text-center py-12 bg-white rounded-2xl border border-dashed border-gray-300 p-8 space-y-3">
-                <p class="text-sm font-bold text-gray-700">Memuat produk...</p>
+                <p class="text-sm font-bold text-gray-700">Memuat katalog produk...</p>
             </div>
         </div>
     </main>
@@ -119,28 +118,32 @@
     </footer>
 
     <script>
-        async function muatProdukOtomatis() {
+        // DAFTAR NAMA FILE PRODUK KAMU DI FOLDER content/produk/
+        // Setiap kali kamu nambah file .md baru, cukup ketik nama filenya di daftar bawah ini (tanpa .md)
+        const daftarSlugProduk = [
+            "loctite-lb-8150",
+            "seiken-rubber-grease",
+            "crc-zinc-it",
+            "dextone-epoxy-adeshive",
+            "dolph-spray-ac41"
+            // Tambahkan nama file baru di sini ke bawah kalau ada produk baru
+        ];
+
+        async function muatSemuaProduk() {
             const container = document.getElementById('daftar-produk-container');
-            try {
-                // Alamat API GitHub yang sudah disesuaikan dengan akun Anda
-                let response = await fetch('https://api.github.com/repos/iniserenatajiwa-cmd/sinarmassakti/contents/content/produk');
-                let files = await response.json();
-                
-                if (!Array.isArray(files) || files.length === 0) {
-                    container.innerHTML = `<div class="col-span-full text-center py-12 bg-white rounded-2xl border border-dashed border-gray-300 p-8"><p class="text-sm font-bold text-gray-700">Belum ada produk.</p></div>`;
-                    return;
-                }
+            container.innerHTML = "";
 
-                container.innerHTML = "";
+            let produkBerhasilMuat = 0;
 
-                for (let file of files) {
-                    if (file.name.endsWith('.md')) {
-                        let res = await fetch(file.download_url);
-                        let text = await res.text();
-                        let data = parseFrontMatter(text);
-                        let slug = file.name.replace('.md', '');
+            for (let slug of daftarSlugProduk) {
+                try {
+                    let response = await fetch(`./content/produk/${slug}.md`);
+                    if (response.ok) {
+                        let text = await response.text();
+                        let data = parseMarkdownData(text);
 
                         if (data && data.title) {
+                            produkBerhasilMuat++;
                             container.innerHTML += `
                                 <div class="kartu-produk bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition flex flex-col" data-kategori="${data.kategori || 'other'}">
                                     <div class="relative overflow-hidden bg-gray-100 aspect-square">
@@ -161,17 +164,23 @@
                             `;
                         }
                     }
+                } catch (err) {
+                    console.error("Gagal memuat:", slug);
                 }
-            } catch (e) {
-                container.innerHTML = `<div class="col-span-full text-center py-12 bg-white rounded-2xl border border-dashed border-gray-300 p-8"><p class="text-sm font-bold text-gray-700">Gagal memuat produk. Silakan refresh beberapa saat lagi.</p></div>`;
+            }
+
+            if (produkBerhasilMuat === 0) {
+                container.innerHTML = `<div class="col-span-full text-center py-12 bg-white rounded-2xl border border-dashed border-gray-300 p-8"><p class="text-sm font-bold text-gray-700">Belum ada produk atau daftar slug belum disesuaikan.</p></div>`;
             }
         }
 
-        function parseFrontMatter(markdownText) {
+        function parseMarkdownData(markdownText) {
             let parts = markdownText.split('---');
             if (parts.length < 3) return null;
+            
             let lines = parts[1].trim().split('\n');
             let obj = {};
+            
             lines.forEach(line => {
                 let idx = line.indexOf(':');
                 if (idx > -1) {
@@ -180,7 +189,13 @@
                     obj[k] = v;
                 }
             });
-            obj.deskripsi = parts[2].trim();
+
+            // Ambil deskripsi dari bodi teks di bawah garis pemisah kedua
+            let bodyText = parts.slice(2).join('---').trim();
+            if (bodyText) {
+                obj.deskripsi = bodyText;
+            }
+
             return obj;
         }
 
@@ -200,7 +215,7 @@
             }
         }
 
-        muatProdukOtomatis();
+        muatSemuaProduk();
     </script>
 </body>
 </html>
