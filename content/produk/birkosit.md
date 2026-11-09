@@ -1,7 +1,16 @@
 ---
 title: BIRKOSIT Dichtungskitt High Pressure & High Temperatur Sealant
-sku: "-"
+sku: "25894"
 kategori: sealant
 image: images/uploads/birkosit.png
-deskripsi: Sealant pasta satu komponen yang dirancang khusus untuk menyegel sambung logam (metal-to-metal joints) pada kondisi tekanan dan suhu ekstrem.
+ukuran: 1 kg
 ---
+Sealant pasta satu komponen yang dirancang khusus untuk menyegel sambungan logam (metal-to-metal joints) pada kondisi tekanan dan suhu ekstrem.
+
+Spesifikasi:
+- Brand : Birkosit
+- Produk : Dichtungskitt
+- Jenis : Component Sealing Compound
+- Isi : 1 kg
+- Warna : Merah Kecoklatan (Paste)
+- Original : Ya
