@@ -36,8 +36,11 @@
                     <p id="prod-sku" class="text-xs text-gray-400 font-mono mt-1">SKU: -</p>
                 </div>
                 
-                <div class="bg-gray-50 p-4 rounded-xl border">
+                <div class="bg-gray-50 p-4 rounded-xl border space-y-1">
                     <span class="text-sm font-bold text-gray-700">Status: Tersedia (Tanya Harga / Konsultasi)</span>
+                    <div id="prod-ukuran-container" class="text-sm font-semibold text-gray-800 pt-1">
+                        Ukuran: <span id="prod-ukuran" class="font-normal text-gray-600">-</span>
+                    </div>
                 </div>
 
                 <!-- Bagian Deskripsi Lengkap -->
@@ -79,6 +82,7 @@
                     document.getElementById('prod-brand').innerText = parsed.kategori || 'Industrial';
                     document.getElementById('prod-name').innerText = parsed.title || '-';
                     document.getElementById('prod-sku').innerText = "SKU: " + (parsed.sku || '-');
+                    document.getElementById('prod-ukuran').innerText = parsed.ukuran || '-';
                     
                     // Menampilkan isi bodi markdown secara utuh tanpa terpotong
                     document.getElementById('prod-desc').innerText = parsed.deskripsi || 'Tidak ada deskripsi.';
