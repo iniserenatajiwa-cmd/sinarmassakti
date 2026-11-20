@@ -1,6 +1,6 @@
 ---
 title: Aica-Aibon 601 Synthetic Rubber Adhesive
-sku: "-"
+sku: "29409"
 kategori: adhesive
 image: images/uploads/aica-601.png
 ukuran: 700 g
