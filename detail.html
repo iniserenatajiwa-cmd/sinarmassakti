@@ -41,11 +41,14 @@
                     <span class="text-sm font-bold text-gray-700">Status: Tersedia (Tanya Harga / Konsultasi)</span>
                 </div>
 
-                <!-- Kotak Ukuran / Varian Sendiri -->
+                <!-- Ringkasan Ukuran Terpilih -->
                 <div class="bg-gray-50 p-4 rounded-xl border flex items-center justify-between">
-                    <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Ukuran / Varian</span>
+                    <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Ukuran Dipilih</span>
                     <span id="prod-ukuran" class="text-sm font-bold text-gray-900">-</span>
                 </div>
+
+                <!-- Wadah Kotak Terpisah untuk Tiap Ukuran -->
+                <div id="varian-cards" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
 
                 <!-- Bagian Deskripsi Lengkap -->
                 <div class="space-y-2">
@@ -67,6 +70,78 @@
     </footer>
 
     <script>
+        function normalisasiPathGambar(path) {
+            if (!path) return '';
+            let clean = path.trim().replace(/^["']|["']$/g, '');
+            if (clean.startsWith('http://') || clean.startsWith('https://') || clean.startsWith('./') || clean.startsWith('/')) {
+                return clean;
+            }
+            if (clean.startsWith('images/')) {
+                return './' + clean;
+            }
+            return './images/uploads/' + clean;
+        }
+
+        function siapkanVarianUkuran(parsed, defaultImg) {
+            const labelUkuran = document.getElementById('prod-ukuran');
+            const containerKartu = document.getElementById('varian-cards');
+            const imgEl = document.getElementById('prod-img');
+
+            containerKartu.innerHTML = '';
+
+            if (!parsed.ukuran || parsed.ukuran.trim() === '-' || parsed.ukuran.trim() === '') {
+                labelUkuran.innerText = '-';
+                return;
+            }
+
+            const daftarUkuran = parsed.ukuran.split('|').map(item => item.trim()).filter(Boolean);
+            const daftarGambar = parsed.gambar_ukuran
+                ? parsed.gambar_ukuran.split('|').map(item => item.trim())
+                : [];
+
+            labelUkuran.innerText = daftarUkuran[0] || '-';
+
+            if (daftarUkuran.length <= 1) {
+                if (daftarGambar[0]) {
+                    imgEl.src = normalisasiPathGambar(daftarGambar[0]);
+                }
+                return;
+            }
+
+            daftarUkuran.forEach((ukuran, index) => {
+                const card = document.createElement('button');
+                card.type = 'button';
+
+                const setAktif = (aktif) => {
+                    card.className = aktif
+                        ? 'p-3 rounded-xl border-2 border-red-600 bg-red-50 text-left transition shadow-sm'
+                        : 'p-3 rounded-xl border border-gray-200 bg-white hover:border-gray-400 text-left transition';
+                };
+
+                setAktif(index === 0);
+
+                card.innerHTML = `
+                    <div class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Varian ${index + 1}</div>
+                    <div class="text-sm font-bold text-gray-900 mt-0.5">${ukuran}</div>
+                `;
+
+                card.addEventListener('click', () => {
+                    containerKartu.querySelectorAll('button').forEach((otherCard, idx) => {
+                        otherCard.className = 'p-3 rounded-xl border border-gray-200 bg-white hover:border-gray-400 text-left transition';
+                        if (idx === index) {
+                            setAktif(true);
+                        }
+                    });
+
+                    labelUkuran.innerText = ukuran;
+                    const gambarPilihan = daftarGambar[index] ? normalisasiPathGambar(daftarGambar[index]) : defaultImg;
+                    imgEl.src = gambarPilihan;
+                });
+
+                containerKartu.appendChild(card);
+            });
+        }
+
         async function ambilDetailProduk() {
             const urlParams = new URLSearchParams(window.location.search);
             const namaFile = urlParams.get('id');
@@ -81,12 +156,15 @@
                 let parsed = parseMarkdown(text);
 
                 if (parsed) {
+                    const defaultImg = parsed.image ? normalisasiPathGambar(parsed.image) : 'logo-sinarmassakti.jpeg';
+
                     document.getElementById('page-title').innerText = (parsed.title || "Produk") + " - SinarMasSakti";
-                    document.getElementById('prod-img').src = parsed.image || 'logo-sinarmassakti.jpeg';
+                    document.getElementById('prod-img').src = defaultImg;
                     document.getElementById('prod-brand').innerText = parsed.kategori || 'Industrial';
                     document.getElementById('prod-name').innerText = parsed.title || '-';
                     document.getElementById('prod-sku').innerText = "SKU: " + (parsed.sku || '-');
-                    document.getElementById('prod-ukuran').innerText = parsed.ukuran || '-';
+
+                    siapkanVarianUkuran(parsed, defaultImg);
                     
                     // Menampilkan isi bodi markdown secara utuh tanpa terpotong
                     document.getElementById('prod-desc').innerText = parsed.deskripsi || 'Tidak ada deskripsi.';
