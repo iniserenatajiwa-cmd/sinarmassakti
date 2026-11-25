@@ -41,13 +41,13 @@
                     <span class="text-sm font-bold text-gray-700">Status: Tersedia (Tanya Harga / Konsultasi)</span>
                 </div>
 
-                <!-- Ringkasan Ukuran Terpilih -->
+                <!-- Ringkasan Ukuran / Daya Terpilih -->
                 <div class="bg-gray-50 p-4 rounded-xl border flex items-center justify-between">
-                    <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Ukuran Dipilih</span>
+                    <span id="label-ringkasan-varian" class="text-xs font-bold text-gray-400 uppercase tracking-wider">Ukuran Dipilih</span>
                     <span id="prod-ukuran" class="text-sm font-bold text-gray-900">-</span>
                 </div>
 
-                <!-- Wadah Kotak Terpisah untuk Tiap Ukuran -->
+                <!-- Wadah Kotak Terpisah untuk Tiap Ukuran / Daya -->
                 <div id="varian-cards" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
 
                 <!-- Bagian Deskripsi Lengkap -->
@@ -82,35 +82,76 @@
             return './images/uploads/' + clean;
         }
 
-        function siapkanVarianUkuran(parsed, defaultImg) {
+        function ambilNamaTipeVarian(tipeRaw) {
+            const tipe = (tipeRaw || '').trim().toLowerCase();
+            if (tipe === 'daya' || tipe === 'daya listrik' || tipe === 'watt' || tipe === 'listrik') {
+                return {
+                    tunggal: 'Daya Listrik',
+                    dipilih: 'Daya Listrik Dipilih',
+                    waLabel: 'Daya Listrik'
+                };
+            }
+            return {
+                tunggal: 'Ukuran',
+                dipilih: 'Ukuran Dipilih',
+                waLabel: 'Ukuran'
+            };
+        }
+
+        function perbaruiPesanWa(judulProduk, skuAktif, nilaiAktif, punyaBanyakVarian, waLabel) {
+            const skuTeks = skuAktif && skuAktif !== '-' ? skuAktif : '-';
+            const infoVarian = punyaBanyakVarian && nilaiAktif && nilaiAktif !== '-' ? ` (${waLabel}: ${nilaiAktif})` : '';
+            const pesanWa = `Halo SinarMasSakti, saya tertarik dengan produk ${judulProduk}${infoVarian} (SKU: ${skuTeks}). Mohon info detail spesifikasi dan harganya.`;
+            document.getElementById('wa-btn').href = `https://wa.me/6285700976558?text=${encodeURIComponent(pesanWa)}`;
+        }
+
+        function siapkanVarianUkuran(parsed, defaultImg, defaultSku) {
+            const labelRingkasan = document.getElementById('label-ringkasan-varian');
             const labelUkuran = document.getElementById('prod-ukuran');
+            const labelSku = document.getElementById('prod-sku');
             const containerKartu = document.getElementById('varian-cards');
             const imgEl = document.getElementById('prod-img');
+            const judulProduk = parsed.title || 'Produk';
+            const istilah = ambilNamaTipeVarian(parsed.tipe_varian);
 
+            labelRingkasan.innerText = istilah.dipilih;
             containerKartu.innerHTML = '';
 
             if (!parsed.ukuran || parsed.ukuran.trim() === '-' || parsed.ukuran.trim() === '') {
                 labelUkuran.innerText = '-';
+                labelSku.innerText = "SKU: " + defaultSku;
+                perbaruiPesanWa(judulProduk, defaultSku, '-', false, istilah.waLabel);
                 return;
             }
 
             const daftarUkuran = parsed.ukuran.split('|').map(item => item.trim()).filter(Boolean);
+            const daftarSku = parsed.sku_ukuran
+                ? parsed.sku_ukuran.split('|').map(item => item.trim())
+                : [];
             const daftarGambar = parsed.gambar_ukuran
                 ? parsed.gambar_ukuran.split('|').map(item => item.trim())
                 : [];
 
-            labelUkuran.innerText = daftarUkuran[0] || '-';
+            const ukuranAwal = daftarUkuran[0] || '-';
+            const skuAwal = daftarSku[0] || defaultSku;
+
+            labelUkuran.innerText = ukuranAwal;
+            labelSku.innerText = "SKU: " + skuAwal;
 
             if (daftarUkuran.length <= 1) {
                 if (daftarGambar[0]) {
                     imgEl.src = normalisasiPathGambar(daftarGambar[0]);
                 }
+                perbaruiPesanWa(judulProduk, skuAwal, ukuranAwal, false, istilah.waLabel);
                 return;
             }
+
+            perbaruiPesanWa(judulProduk, skuAwal, ukuranAwal, true, istilah.waLabel);
 
             daftarUkuran.forEach((ukuran, index) => {
                 const card = document.createElement('button');
                 card.type = 'button';
+                const skuVarian = daftarSku[index] || defaultSku;
 
                 const setAktif = (aktif) => {
                     card.className = aktif
@@ -121,8 +162,9 @@
                 setAktif(index === 0);
 
                 card.innerHTML = `
-                    <div class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Varian ${index + 1}</div>
+                    <div class="text-[10px] font-bold uppercase tracking-wider text-gray-400">${istilah.tunggal} ${index + 1}</div>
                     <div class="text-sm font-bold text-gray-900 mt-0.5">${ukuran}</div>
+                    ${skuVarian && skuVarian !== '-' ? `<div class="text-[11px] font-mono text-gray-500 mt-1">SKU: ${skuVarian}</div>` : ''}
                 `;
 
                 card.addEventListener('click', () => {
@@ -134,8 +176,12 @@
                     });
 
                     labelUkuran.innerText = ukuran;
+                    labelSku.innerText = "SKU: " + (skuVarian || '-');
+
                     const gambarPilihan = daftarGambar[index] ? normalisasiPathGambar(daftarGambar[index]) : defaultImg;
                     imgEl.src = gambarPilihan;
+
+                    perbaruiPesanWa(judulProduk, skuVarian, ukuran, true, istilah.waLabel);
                 });
 
                 containerKartu.appendChild(card);
@@ -157,20 +203,18 @@
 
                 if (parsed) {
                     const defaultImg = parsed.image ? normalisasiPathGambar(parsed.image) : 'logo-sinarmassakti.jpeg';
+                    const defaultSku = parsed.sku || '-';
 
                     document.getElementById('page-title').innerText = (parsed.title || "Produk") + " - SinarMasSakti";
                     document.getElementById('prod-img').src = defaultImg;
                     document.getElementById('prod-brand').innerText = parsed.kategori || 'Industrial';
                     document.getElementById('prod-name').innerText = parsed.title || '-';
-                    document.getElementById('prod-sku').innerText = "SKU: " + (parsed.sku || '-');
+                    document.getElementById('prod-sku').innerText = "SKU: " + defaultSku;
 
-                    siapkanVarianUkuran(parsed, defaultImg);
+                    siapkanVarianUkuran(parsed, defaultImg, defaultSku);
                     
                     // Menampilkan isi bodi markdown secara utuh tanpa terpotong
                     document.getElementById('prod-desc').innerText = parsed.deskripsi || 'Tidak ada deskripsi.';
-                    
-                    let pesanWa = `Halo SinarMasSakti, saya tertarik dengan produk ${parsed.title} (SKU: ${parsed.sku || '-'}). Mohon info detail spesifikasi dan harganya.`;
-                    document.getElementById('wa-btn').href = `https://wa.me/6285700976558?text=${encodeURIComponent(pesanWa)}`;
                 } else { tampilkanError(); }
             } catch (error) { 
                 tampilkanError(); 
