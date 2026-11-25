@@ -9,7 +9,7 @@ ukuran: 2000 Watt
 Heat Gun dari DCA yang dirancang untuk menghasilkan aliran udara panas secara stabil untuk berbagai kebutuhan pekerjaan profesional maupun industri.
 
 Spesifikasi:
-- Brand : Aica-Aibon
+- Brand : DCA
 - Model : AQB2000
 - Daya Listrik : 2000 W
 - Tegangan : 220 - 240 V ~ 50/60 Hz
